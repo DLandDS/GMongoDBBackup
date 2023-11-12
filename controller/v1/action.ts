@@ -4,6 +4,7 @@ import Joi from "joi";
 import Database from "../../database";
 import httpStatus from "http-status";
 import ApiError from "../../utils/apiError";
+import { terminalService } from "../../service";
 
 const router = Router();
 
@@ -21,14 +22,24 @@ router.route("/:type")
         body: Joi.object().keys({
             id: Joi.number().required(),
         })
-    }),(req, res) => {
-        const data = Database.server.findUnique({
+    }), async (req, res) => {
+        const data = await Database.server.findUnique({
             where: {
                 id: req.body.id
             }
         });
         if(!data) {
             throw new ApiError(httpStatus.NOT_FOUND, "Server not found");
+        }
+
+        switch(req.params.type) {
+            case ActionType.START: {
+                const terminal = terminalService.createTerminal(data.id + "", "ping", ["8.8.8.8"]);
+                terminal.getLog().addListener((data) => {
+                    console.log(data);
+                });
+            }
+            res.status(httpStatus.OK).send();
         }
     });
 
