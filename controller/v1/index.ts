@@ -1,6 +1,7 @@
 import { Router } from "express";
 import serverRouter from "./server";
 import actionRouter from "./action";
+import settingRouter from "./setting";
 
 export type IRoute = {
     path: string;
@@ -16,6 +17,10 @@ const routes: IRoute[] = [
         path: "/action",
         router: actionRouter,
     },
+    {
+        path: "/setting",
+        router: settingRouter,
+    }
 ];
 
 const routers = routes.map((route) => {

@@ -5,6 +5,7 @@ import { errorMiddleware, notFoundMiddleware, timeMiddleware } from './middlewar
 import catchAsync from './utils/catchAsync';
 import v1Router from './controller/v1';
 import Database from './database';
+import log from './log/log';
 
 const app = express();
 
@@ -29,11 +30,11 @@ app.use(errorMiddleware);
 
 
 Database.$connect().then(() => {
-    console.log('Database connected');
+    log('INFO', 'Database connected');
     app.listen(config.port, () => {
-        console.log(`Server is listening on port ${config.port}`);
+        log('INFO', `Server is listening on port ${config.port}`)
     });
 }).catch((err) => {
-    console.log('Database connection failed');
+    log('ERROR', 'Database connection failed');
     console.log(err);
 });

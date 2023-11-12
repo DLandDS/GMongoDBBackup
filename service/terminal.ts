@@ -1,5 +1,7 @@
 import { spawn } from 'child_process';
 import FixedLengthArray from '../utils/fixedLenghtArray';
+import ApiError from '../utils/apiError';
+import httpStatus from 'http-status';
 
 class TerminalLog {
     private log: string[] = new FixedLengthArray<string>(100);
@@ -63,6 +65,14 @@ class Terminal {
 const terminals: Map<string, Terminal> = new Map();
 
 export function createTerminal(id: string, command: string, args?: string[]) {
+    if (terminals.has(id)) {
+        const terminal = terminals.get(id)!;
+        if (terminal.getProcess().exitCode == null) {
+            throw new ApiError(httpStatus.CONFLICT, `Terminal ${id} already exists`);
+        } else {
+            terminals.delete(id);
+        }
+    }
     const process = spawn(command, args);
     const terminal = new Terminal(id, process);
     terminals.set(id, terminal);
@@ -74,5 +84,8 @@ export function getTerminal(id: string) {
 }
 
 export function removeTerminal(id: string) {
+    if (terminals.has(id)) {
+        terminals.get(id)?.getProcess().kill();
+    }
     terminals.delete(id);
 }

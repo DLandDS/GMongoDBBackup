@@ -4,7 +4,8 @@ import Joi from "joi";
 import Database from "../../database";
 import httpStatus from "http-status";
 import ApiError from "../../utils/apiError";
-import { terminalService } from "../../service";
+import { settingService, terminalService } from "../../service";
+import catchAsync from "../../utils/catchAsync";
 
 const router = Router();
 
@@ -22,7 +23,7 @@ router.route("/:type")
         body: Joi.object().keys({
             id: Joi.number().required(),
         })
-    }), async (req, res) => {
+    }), catchAsync(async (req, res) => {
         const data = await Database.server.findUnique({
             where: {
                 id: req.body.id
@@ -31,17 +32,21 @@ router.route("/:type")
         if(!data) {
             throw new ApiError(httpStatus.NOT_FOUND, "Server not found");
         }
-
         switch(req.params.type) {
             case ActionType.START: {
-                const terminal = terminalService.createTerminal(data.id + "", "ping", ["8.8.8.8"]);
+                const command = settingService.getSetting().command.split(" ");
+                const terminal = terminalService.createTerminal(data.id + "", command[0], command.slice(1));
                 terminal.getLog().addListener((data) => {
                     console.log(data);
                 });
+                break;
             }
-            res.status(httpStatus.OK).send();
+            default: {
+                throw new ApiError(httpStatus.BAD_REQUEST, "Invalid action type");
+            }
         }
-    });
+        res.status(httpStatus.OK).send();
+    }));
 
 
 
