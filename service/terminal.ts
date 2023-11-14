@@ -2,6 +2,8 @@ import { spawn } from 'child_process';
 import FixedLengthArray from '../utils/fixedLenghtArray';
 import ApiError from '../utils/apiError';
 import httpStatus from 'http-status';
+import Database from '../database';
+import log from '../log/log';
 
 class TerminalLog {
     private log: string[] = new FixedLengthArray<string>(100);
@@ -28,13 +30,37 @@ class TerminalLog {
     }
 }
 
+async function updateLastBackup(id: string) {
+    const record = await Database.server.findUnique({
+        where: {
+            id: parseInt(id)
+        },
+    });
+    if(!record) {
+        throw new ApiError(httpStatus.NOT_FOUND, "Server not found");
+    }
+    await Database.server.update({
+        where: {
+            id: parseInt(id)
+        },
+        data: {
+            ...record,
+            lastBackup: new Date(),
+            id: undefined,
+        }
+    });
+}
+
 
 class Terminal {
     private log: TerminalLog = new TerminalLog();
     private process: ReturnType<typeof spawn>;
     private id: string;
+    startedTime: Date = new Date();
+    endedTime?: Date;
 
     constructor(id: string, process: ReturnType<typeof spawn>) {
+        log("INFO", `The ${id} backup is running.`)
         this.id = id;
         this.process = process;
         this.process.stdout?.on("data", (data) => {
@@ -45,6 +71,16 @@ class Terminal {
         });
         this.process.on("close", (code) => {
             this.log.push(`child process exited with code ${code}`);
+            this.endedTime = new Date();
+            if(code == 0){
+                updateLastBackup(this.id).catch((err) => {
+                    log("ERROR", `Failed to update last backup time at "${id}"`)
+                    console.error(err);
+                });
+                log("INFO", `The "${id}" backup is complete.`)
+            } else {
+                log("ERROR", `The "${id}" backup is exited with code ${code}`)
+            }
         });
     }
 

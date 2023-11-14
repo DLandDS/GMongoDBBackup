@@ -21,7 +21,10 @@ router.route("/")
             interval: Joi.number().required(),
         })
     }), catchAsync(async (req: Request, res: Response) => {
-        const record = await Database.server.create({ data: req.body });
+        const record = await Database.server.create({ data: {
+            ...req.body,
+            lastBackup: new Date(0),
+        } });
         res.status(201).send(record);
     }))
 
