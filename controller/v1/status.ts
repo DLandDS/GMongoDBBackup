@@ -7,6 +7,14 @@ import catchAsync from "../../utils/catchAsync";
 
 const router = Router();
 
+const StatusType = {
+	Running: "running",
+	Ready: "ready",
+	Error: "error",
+} as const;
+
+type StatusType = typeof StatusType[keyof typeof StatusType];
+
 router.post(
 	"/status",
 	validate({
@@ -15,20 +23,35 @@ router.post(
 		}),
 	}),
 	catchAsync(async (req: Request<any, any, { id: number[] }>, res) => {
-		const statuses: { [x: string]: { lastBackup: Date, status: string} } = {}; 
+		const statuses: { [x: string]: { lastBackup: Date, status: {
+			type: StatusType,
+			message: string
+		}} } = {}; 
 		for (const id of req.body.id) {
 			statuses[id] = {} as any;
 			const terminal = terminalService.getTerminal(id);
 			if(!terminal) {
-				statuses[id].status = "Ready";
+				statuses[id].status = {
+					type: "ready",
+					message: "Ready"
+				};
 			} else {
 				const exitCode = terminal.getProcess().exitCode;
 				if(exitCode === null){
-					statuses[id].status = "Running";
+					statuses[id].status = {
+						type: "running",
+						message: "Running"
+					};
 				} else if(exitCode === 0) {
-					statuses[id].status = "Ready";
+					statuses[id].status = {
+						type: "ready",
+						message: "Ready"
+					};
 				} else {
-					statuses[id].status = "Error exit code " + exitCode;
+					statuses[id].status = {
+						type: "error",
+						message: "Error exit code " + exitCode
+					};
 				}
 			}
 			const record = await Database.server.findUnique({
