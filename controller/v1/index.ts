@@ -3,6 +3,7 @@ import serverRouter from "./server";
 import actionRouter from "./action";
 import settingRouter from "./setting";
 import statusRouter from "./status";
+import utilRouter from "./util";
 
 export type IRoute = {
     path: string;
@@ -25,6 +26,10 @@ const routes: IRoute[] = [
     {
         path: "/status",
         router: statusRouter,
+    },
+    {
+        path: "/util",
+        router: utilRouter,
     },
 ];
 
