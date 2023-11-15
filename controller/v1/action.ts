@@ -4,7 +4,7 @@ import Joi from "joi";
 import Database from "../../database";
 import httpStatus from "http-status";
 import ApiError from "../../utils/apiError";
-import { settingService, terminalService } from "../../service";
+import { actionService, terminalService } from "../../service";
 import catchAsync from "../../utils/catchAsync";
 
 const router = Router();
@@ -35,8 +35,7 @@ router.route("/:type")
         }
         switch(req.params.type) {
             case ActionType.START: {
-                const command = settingService.getSetting().command.split(" ");
-                terminalService.createTerminal(data.id, command[0], command.slice(1));
+                await actionService.startBackup(data.id);
                 break;
             }
             case ActionType.STOP: {

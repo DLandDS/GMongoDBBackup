@@ -1,12 +1,11 @@
 import fs from "fs";
-import Joi from "joi";
 import log from "../log/log";
 
 const filePath = "data/setting.json";
 
 let setting: { command: string, terminalLogSize: number };
 
-const defaultSetting = { command: "echo Hello World", terminalLogSize: 100 };
+const defaultSetting = { command: "echo Hello World", terminalLogSize: 100, suffixFormat: "-YYYYmmDD_HHmmss", backupDir: "./cache" };
 
 if (fs.existsSync(filePath)) {
     setting = readSettingFile();

@@ -36,7 +36,7 @@ router.post(
 					message: "Ready"
 				};
 			} else {
-				const exitCode = terminal.getProcess().exitCode;
+				const exitCode = terminal.getProcess()?.exitCode;
 				if(terminal.isAlive()){
 					statuses[id].status = {
 						type: "running",

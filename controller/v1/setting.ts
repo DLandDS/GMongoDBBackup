@@ -2,6 +2,7 @@ import { Router } from "express";
 import { settingService } from "../../service";
 import validate from "../../middleware/validate";
 import Joi from "joi";
+import catchAsync from "../../utils/catchAsync";
 
 const router = Router();
 
@@ -13,10 +14,12 @@ router.route("/")
     body: Joi.object().keys({
         command: Joi.string().required(),
         terminalLogSize: Joi.number().required(),
+        suffixFormat: Joi.string().required(),
+        backupDir: Joi.string().required(),
     }),
-}), async (req, res) => {
+}), catchAsync(async (req, res) => {
     const setting = await settingService.updateSetting(req.body);
     res.send(setting);
-})
+}));
 
 export default router;
