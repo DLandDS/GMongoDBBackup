@@ -28,7 +28,7 @@ router.post(
 				} else if(exitCode === 0) {
 					statuses[id].status = "Ready";
 				} else {
-					statuses[id].status = "Error: exit code " + exitCode;
+					statuses[id].status = "Error exit code " + exitCode;
 				}
 			}
 			const record = await Database.server.findUnique({
