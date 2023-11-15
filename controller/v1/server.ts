@@ -112,4 +112,39 @@ router.route("/:id/log")
     res.send({ log: terminal?.getLog().getLog().join("") || "" });
 }))
 
+router.route("/:id/log/stream")
+.get(validate({
+    params: Joi.object().keys({
+        id: Joi.number().required(),
+    })
+}), catchAsync(async (req, res) => {
+    const record = await Database.server.findUnique({
+        where: {
+            id: req.params.id
+        }
+    });
+    if(!record) {
+        throw new ApiError(httpStatus.NOT_FOUND, "Server not found");
+    }
+    const terminal = terminalService.getTerminal(req.params.id);
+    if(!terminal) {
+        throw new ApiError(httpStatus.NOT_FOUND, "Terminal not found!");
+    }
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    const listener = (log: string) => {
+        res.write(`data: ${log}\n\n`);
+    }
+
+    terminal.getLog().addListener(listener);
+
+    res.on("close", () => {
+        terminal.getLog().removeListener(listener);
+    });
+
+}))
+
 export default router;

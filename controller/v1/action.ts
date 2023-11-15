@@ -11,6 +11,7 @@ const router = Router();
 
 const ActionType = {
     START: "start",
+    STOP: "stop",
 }
 
 type ActionType = typeof ActionType[keyof typeof ActionType];
@@ -35,10 +36,11 @@ router.route("/:type")
         switch(req.params.type) {
             case ActionType.START: {
                 const command = settingService.getSetting().command.split(" ");
-                const terminal = terminalService.createTerminal(data.id, command[0], command.slice(1));
-                terminal.getLog().addListener((data) => {
-                    console.log(data);
-                });
+                terminalService.createTerminal(data.id, command[0], command.slice(1));
+                break;
+            }
+            case ActionType.STOP: {
+                terminalService.stopTerminal(data.id);
                 break;
             }
             default: {

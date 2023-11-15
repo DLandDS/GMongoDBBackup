@@ -56,6 +56,7 @@ class Terminal {
     private log: TerminalLog = new TerminalLog();
     private process: ReturnType<typeof spawn>;
     private id: number;
+    private alive: boolean = true;
     startedTime: Date = new Date();
     endedTime?: Date;
 
@@ -70,6 +71,7 @@ class Terminal {
             this.log.push(data.toString());
         });
         this.process.on("close", (code) => {
+            this.alive = false;
             this.log.push(`child process exited with code ${code}`);
             this.endedTime = new Date();
             if(code == 0){
@@ -95,6 +97,10 @@ class Terminal {
     getProcess() {
         return this.process;
     }
+
+    isAlive() {
+        return this.alive;
+    }
 }
 
 
@@ -103,8 +109,8 @@ const terminals: Map<number, Terminal> = new Map();
 export function createTerminal(id: number, command: string, args?: string[]) {
     if (terminals.has(id)) {
         const terminal = terminals.get(id)!;
-        if (terminal.getProcess().exitCode == null) {
-            throw new ApiError(httpStatus.CONFLICT, `Terminal ${id} already exists`);
+        if (terminal.isAlive()) {
+            throw new ApiError(httpStatus.CONFLICT, `The process is already running at pid "${terminal.getProcess().pid}"`);
         } else {
             terminals.delete(id);
         }
@@ -117,6 +123,12 @@ export function createTerminal(id: number, command: string, args?: string[]) {
 
 export function getTerminal(id: number) {
     return terminals.get(id);
+}
+
+export function stopTerminal(id: number) {
+    if (terminals.has(id)) {
+        terminals.get(id)?.getProcess().kill();
+    }
 }
 
 export function removeTerminal(id: number) {
