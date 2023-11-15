@@ -35,7 +35,7 @@ router.route("/:type")
         switch(req.params.type) {
             case ActionType.START: {
                 const command = settingService.getSetting().command.split(" ");
-                const terminal = terminalService.createTerminal(data.id + "", command[0], command.slice(1));
+                const terminal = terminalService.createTerminal(data.id, command[0], command.slice(1));
                 terminal.getLog().addListener((data) => {
                     console.log(data);
                 });

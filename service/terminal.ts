@@ -30,10 +30,10 @@ class TerminalLog {
     }
 }
 
-async function updateLastBackup(id: string) {
+async function updateLastBackup(id: number) {
     const record = await Database.server.findUnique({
         where: {
-            id: parseInt(id)
+            id
         },
     });
     if(!record) {
@@ -41,7 +41,7 @@ async function updateLastBackup(id: string) {
     }
     await Database.server.update({
         where: {
-            id: parseInt(id)
+            id
         },
         data: {
             ...record,
@@ -55,11 +55,11 @@ async function updateLastBackup(id: string) {
 class Terminal {
     private log: TerminalLog = new TerminalLog();
     private process: ReturnType<typeof spawn>;
-    private id: string;
+    private id: number;
     startedTime: Date = new Date();
     endedTime?: Date;
 
-    constructor(id: string, process: ReturnType<typeof spawn>) {
+    constructor(id: number, process: ReturnType<typeof spawn>) {
         log("INFO", `The ${id} backup is running.`)
         this.id = id;
         this.process = process;
@@ -98,9 +98,9 @@ class Terminal {
 }
 
 
-const terminals: Map<string, Terminal> = new Map();
+const terminals: Map<number, Terminal> = new Map();
 
-export function createTerminal(id: string, command: string, args?: string[]) {
+export function createTerminal(id: number, command: string, args?: string[]) {
     if (terminals.has(id)) {
         const terminal = terminals.get(id)!;
         if (terminal.getProcess().exitCode == null) {
@@ -115,11 +115,11 @@ export function createTerminal(id: string, command: string, args?: string[]) {
     return terminal;
 }
 
-export function getTerminal(id: string) {
+export function getTerminal(id: number) {
     return terminals.get(id);
 }
 
-export function removeTerminal(id: string) {
+export function removeTerminal(id: number) {
     if (terminals.has(id)) {
         terminals.get(id)?.getProcess().kill();
     }
