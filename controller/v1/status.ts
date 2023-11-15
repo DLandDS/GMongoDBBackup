@@ -16,7 +16,7 @@ const StatusType = {
 type StatusType = typeof StatusType[keyof typeof StatusType];
 
 router.post(
-	"/status",
+	"/",
 	validate({
 		body: Joi.object({
 			id: Joi.array().items(Joi.number()).required(),

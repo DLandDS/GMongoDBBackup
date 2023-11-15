@@ -23,10 +23,9 @@ const routes: IRoute[] = [
         router: settingRouter,
     },
     {
-        path: "/",
+        path: "/status",
         router: statusRouter,
-
-    }
+    },
 ];
 
 const routers = routes.map((route) => {

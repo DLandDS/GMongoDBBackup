@@ -5,6 +5,7 @@ import Joi from "joi";
 import Database from "../../database";
 import httpStatus from "http-status";
 import ApiError from "../../utils/apiError";
+import { terminalService } from "../../service";
 
 const router = Router();
 
@@ -92,5 +93,23 @@ router.route("/:id")
         });
         res.status(201).send(updatedRecord);
     }))
+
+router.route("/:id/log")
+.get(validate({
+    params: Joi.object().keys({
+        id: Joi.number().required(),
+    })
+}), catchAsync(async (req, res) => {
+    const record = await Database.server.findUnique({
+        where: {
+            id: req.params.id
+        }
+    });
+    if(!record) {
+        throw new ApiError(httpStatus.NOT_FOUND, "Server not found");
+    }
+    const terminal = terminalService.getTerminal(req.params.id);
+    res.send({ log: terminal?.getLog().getLog().join("") || "" });
+}))
 
 export default router;
