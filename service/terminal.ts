@@ -59,6 +59,7 @@ class Terminal {
     private alive: boolean = true;
     startedTime: Date = new Date();
     endedTime?: Date;
+    error?: Error;
 
     constructor(id: number) {
         log("INFO", `The ${id} backup is running.`)
@@ -99,7 +100,6 @@ class Terminal {
                         log("INFO", `The ${this.id} backup is complete.`)
                         finishPromiseResolve!?.call(this);
                     } else {
-                        log("ERROR", `The "${this.id}" backup is exited with code ${code}`)
                         finishPromiseReject!?.call(this, new Error(`The ${this} backup is exited with code ${code}`));
                     }
                 });
@@ -135,6 +135,13 @@ class Terminal {
 
     isAlive() {
         return this.alive;
+    }
+
+    reportError(error: Error) {
+        this.error = error;
+        this.log.push(`ERROR: ${error.message}\n`);
+        log("ERROR", `The "${this.id}" backup is reported with error: ${error.message}`, error);
+        this.alive = false;
     }
 }
 

@@ -6,6 +6,7 @@ import catchAsync from './utils/catchAsync';
 import v1Router from './controller/v1';
 import Database from './database';
 import log from './log/log';
+import drive from './gdrive';
 
 const app = express();
 
@@ -31,10 +32,14 @@ app.use(errorMiddleware);
 
 Database.$connect().then(() => {
     log('INFO', 'Database connected');
-    app.listen(config.port, () => {
-        log('INFO', `Server is listening on port ${config.port}`)
+    drive.files.list().then((res) => {
+        log('INFO', 'Google Drive connected');
+        app.listen(config.port, () => {
+            log('INFO', `Server is listening on port ${config.port}`)
+        });
+    }).catch((err: any) => {
+        log('ERROR', 'Google Drive connection failed', err);
     });
 }).catch((err) => {
-    log('ERROR', 'Database connection failed');
-    console.log(err);
+    log('ERROR', 'Database connection failed', err);
 });

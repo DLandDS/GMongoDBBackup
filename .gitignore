@@ -5,3 +5,4 @@ data
 cache
 prisma/data
 prisma/migrations
+keys.json

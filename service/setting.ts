@@ -5,12 +5,19 @@ const filePath = "data/setting.json";
 
 let setting: { command: string, terminalLogSize: number };
 
-const defaultSetting = { command: "echo Hello World", terminalLogSize: 100, suffixFormat: "-YYYYmmDD_HHmmss", backupDir: "./cache" };
+const defaultSetting = {
+    command: `mongodump --uri="{uri}" --archive={dir}/{fileName} --gzip`,
+    terminalLogSize: 100,
+    suffixFormat: "-YYYYmmDD_HHmmss",
+    backupDir: "./cache",
+    driveDirId: "change_me",
+    fileNameFormat: "{name}{suffix}.agz"
+};
 
 if (fs.existsSync(filePath)) {
     setting = readSettingFile();
 } else {
-    setting = { 
+    setting = {
         ...defaultSetting,
     };
     writeSettingFile(setting);

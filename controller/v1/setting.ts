@@ -16,6 +16,8 @@ router.route("/")
         terminalLogSize: Joi.number().required(),
         suffixFormat: Joi.string().required(),
         backupDir: Joi.string().required(),
+        driveDirId: Joi.string().required(),
+        fileNameFormat: Joi.string().required(),
     }),
 }), catchAsync(async (req, res) => {
     const setting = await settingService.updateSetting(req.body);

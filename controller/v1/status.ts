@@ -36,21 +36,20 @@ router.post(
 					message: "Ready"
 				};
 			} else {
-				const exitCode = terminal.getProcess()?.exitCode;
 				if(terminal.isAlive()){
 					statuses[id].status = {
 						type: "running",
 						message: "Running"
 					};
-				} else if(exitCode === 0 || exitCode === null) {
+				} else if(terminal.error) {
 					statuses[id].status = {
-						type: "ready",
-						message: "Ready"
+						type: "error",
+						message: terminal.error?.message || "Error Unexpected"
 					};
 				} else {
 					statuses[id].status = {
-						type: "error",
-						message: "Error exit code " + exitCode
+						type: "ready",
+						message: "Ready"
 					};
 				}
 			}

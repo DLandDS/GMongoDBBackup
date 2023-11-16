@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import e, { NextFunction, Request, Response } from "express";
 import log from "../log/log";
 import ApiError from "../utils/apiError";
 
@@ -12,8 +12,7 @@ export const errorMiddleware = ((error: ApiError, req: Request & { timestamp: nu
         status: error.status || 500,
         message: error.message || "Internal Server Error"
     });
-    log("INFO", `${req.method} ${req.originalUrl} - ${res.statusCode} ${Date.now() - req.timestamp}ms`);
-    console.log(error)
+    log("ERROR", `${req.method} ${req.originalUrl} - ${res.statusCode} ${Date.now() - req.timestamp}ms`, error);
 }) as (error:any, req: Request, res: Response, next: NextFunction) => void;
 
 
