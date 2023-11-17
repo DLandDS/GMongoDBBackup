@@ -20,6 +20,7 @@ router.route("/")
             name: Joi.string().required(),
             uri: Joi.string().required(),
             interval: Joi.number().required(),
+            gdriveDirId: Joi.string().optional().empty(""),
         })
     }), catchAsync(async (req: Request, res: Response) => {
         const record = await Database.server.create({ data: {
@@ -75,6 +76,7 @@ router.route("/:id")
             name: Joi.string().required(),
             uri: Joi.string().required(),
             interval: Joi.number().required(),
+            gdriveDirId: Joi.string().optional().empty("").default(null),
         })
     }), catchAsync(async (req, res) => {
         const record = await Database.server.findUnique({
@@ -85,11 +87,15 @@ router.route("/:id")
         if(!record) {
             throw new ApiError(httpStatus.NOT_FOUND, "Server not found");
         }
+        //set data to database
         const updatedRecord = await Database.server.update({
             where: {
                 id: req.params.id
             },
-            data: req.body
+            data: {
+                ...req.body,
+            },
+            
         });
         res.status(201).send(updatedRecord);
     }))

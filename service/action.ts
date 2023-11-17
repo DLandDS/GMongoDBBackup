@@ -24,6 +24,14 @@ export async function startBackup(id: number) {
     }
     const terminal = terminalService.createTerminal(record.id);
     try {
+        const server = await Database.server.findUnique({
+            where: {
+                id,
+            },
+        });
+        if (!server) {
+            throw new ApiError(httpStatus.NOT_FOUND, "Server not found");
+        }
         const terminalLog = terminal.getLog();
         const mongoClient = new MongoClient(record.uri, {
             serverSelectionTimeoutMS: 3000,
@@ -70,10 +78,8 @@ export async function startBackup(id: number) {
                     },
                     requestBody: {
                         name: formattedFileName,
-                        parents: [settingService.getSetting().driveDirId],
-                        
+                        parents: [server.gdriveDirId || settingService.getSetting().driveDirId],
                     },
-                    
                 });
                 terminalLog.push("Cleaning...\n");
                 fs.unlinkSync(path);
