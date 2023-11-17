@@ -1,0 +1,6 @@
+*
+!src
+!package.json
+!bun.lockb
+!prisma
+!start.sh

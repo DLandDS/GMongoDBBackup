@@ -5,5 +5,5 @@ data
 cache
 prisma/data
 keys.json
-
-
+docker-compose.*
+!docker-compose.example.yml

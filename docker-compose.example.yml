@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  app:
+    container_name: mongodb-autobackup
+    build: .
+    ports:
+      - 3000:3000
+    volumes:
+      - ./data:/usr/app/data
+      - ./data/:/usr/app/prisma/data
+      - ./keys.json:/usr/app/keys.json
+    environment: 
+      - DATABASE_URL=file:./data/database.sqlite

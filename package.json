@@ -23,7 +23,7 @@
     "prisma": "^5.4.1"
   },
   "scripts": {
-    "start": "bun run index.ts",
-    "dev": "bun --watch run index.ts"
+    "start": "bun run ./src/index.ts",
+    "dev": "bun --watch ./src/index.ts"
   }
 }
