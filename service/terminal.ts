@@ -4,6 +4,7 @@ import ApiError from '../utils/apiError';
 import httpStatus from 'http-status';
 import Database from '../database';
 import log from '../log/log';
+import createPromise from './createPromise';
 
 class TerminalLog {
     private log: string[] = new FixedLengthArray<string>(100);
@@ -66,22 +67,12 @@ class Terminal {
         this.id = id;
     }
 
-    run(command: string, args?: string[]) {
-        let startPromiseResolve: (args?: any) => any;
-        let startPromiseReject: (reason: any) => any;
-        let finishPromiseResolve: (args?: any) => any;
-        let finishPromiseReject: (reason: any) => any;
-        const startPromise = new Promise((resolve, reject) => {
-            startPromiseReject = reject;
-            startPromiseResolve = resolve;
-        });
-        const finishPromise = new Promise((resolve, reject) => {
-            finishPromiseReject = reject;
-            finishPromiseResolve = resolve;
-        });
+    async run(command: string, args?: string[]) {
+        const startPromise = await createPromise<void>();
+        const finishPromise = await createPromise<void>();
         try {
             this.process = spawn(command, args);
-            startPromiseResolve!?.call(this);
+            startPromise.resolve();
             if (this.process) {
                 this.process.stdout?.on("data", (data) => {
                     this.log.push(data.toString());
@@ -95,29 +86,25 @@ class Terminal {
                     this.endedTime = new Date();
                     if (code == 0) {
                         updateLastBackup(this.id).catch((err) => {
-                            finishPromiseReject!?.call(this, err);
+                            finishPromise.reject(err);
                         });
                         log("INFO", `The ${this.id} backup is complete.`)
-                        finishPromiseResolve!?.call(this);
+                        finishPromise.resolve();
                     } else {
-                        finishPromiseReject!?.call(this, new Error(`The ${this} backup is exited with code ${code}`));
+                        finishPromise.reject(new Error(`The ${this} backup is exited with code ${code}`));
                     }
                 });
             } else {
-                startPromiseReject!?.call(this, new Error("Failed to spawn process"));
+                startPromise.reject(new Error("Failed to spawn process"));
                 this.alive = false;
             }
         } catch (error) {
-            startPromiseReject!?.call(this, error);
+            startPromise.reject(error);
             this.alive = false;
         }
         return {
-            awaitStarted: () => {
-                return startPromise;
-            },
-            awaitFinished: () => {
-                return finishPromise;
-            }
+            awaitStarted: () => startPromise.promise,
+            awaitFinished: () => finishPromise.promise
         }
     }
 

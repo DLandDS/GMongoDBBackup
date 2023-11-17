@@ -7,6 +7,7 @@ import v1Router from './controller/v1';
 import Database from './database';
 import log from './log/log';
 import drive from './gdrive';
+import { scheduleService } from './service';
 
 const app = express();
 
@@ -34,6 +35,7 @@ Database.$connect().then(() => {
     log('INFO', 'Database connected');
     drive.files.list().then((res) => {
         log('INFO', 'Google Drive connected');
+        scheduleService.init();
         app.listen(config.port, () => {
             log('INFO', `Server is listening on port ${config.port}`)
         });

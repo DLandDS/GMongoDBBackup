@@ -4,7 +4,7 @@ import Joi from "joi";
 import Database from "../../database";
 import httpStatus from "http-status";
 import ApiError from "../../utils/apiError";
-import { actionService, terminalService } from "../../service";
+import { actionService, scheduleService, terminalService } from "../../service";
 import catchAsync from "../../utils/catchAsync";
 
 const router = Router();
@@ -12,6 +12,8 @@ const router = Router();
 const ActionType = {
     START: "start",
     STOP: "stop",
+    ENABLE: "enable",
+    DISABLE: "disable",
 }
 
 type ActionType = typeof ActionType[keyof typeof ActionType];
@@ -35,11 +37,19 @@ router.route("/:type")
         }
         switch(req.params.type) {
             case ActionType.START: {
-                await actionService.startBackup(data.id);
+                (await actionService.startBackup(data.id)).awaitStarted();
                 break;
             }
             case ActionType.STOP: {
                 terminalService.stopTerminal(data.id);
+                break;
+            }
+            case ActionType.ENABLE: {
+                scheduleService.activate(data.id);
+                break;
+            }
+            case ActionType.DISABLE: {
+                scheduleService.disable(data.id);
                 break;
             }
             default: {
@@ -47,9 +57,5 @@ router.route("/:type")
             }
         }
         res.status(httpStatus.OK).send();
-    }));
-
-
-
-    
+    })); 
 export default router;

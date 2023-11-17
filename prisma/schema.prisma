@@ -16,4 +16,5 @@ model Server {
   uri         String
   interval    Int       @default(30) 
   lastBackup  DateTime 
+  enabled     Boolean   @default(true)
 }

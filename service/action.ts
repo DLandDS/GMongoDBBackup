@@ -8,8 +8,12 @@ import moment from "moment";
 import drive from "../gdrive";
 import fs from "fs";
 import formatDataSize from "./formatDataSize";
+import createPromise from "./createPromise";
 
 export async function startBackup(id: number) {
+    const startedPromise = await createPromise<void>();
+    const finishedPromise = await createPromise<void>();
+
     const record = await Database.server.findUnique({
         where: {
             id,
@@ -40,8 +44,9 @@ export async function startBackup(id: number) {
         });
         terminalLog.push("Start backup...\n");
         const commandArray = formated.split(" ");
-        const runPromisses = terminal.run(commandArray[0], commandArray.slice(1));
+        const runPromisses = await terminal.run(commandArray[0], commandArray.slice(1));
         await runPromisses.awaitStarted();
+        startedPromise.resolve();
         (async () => {
             try {
                 await runPromisses.awaitFinished();
@@ -73,12 +78,18 @@ export async function startBackup(id: number) {
                 terminalLog.push("Cleaning...\n");
                 fs.unlinkSync(path);
                 terminalLog.push("Done\n");
+                finishedPromise.resolve();
             } catch (error: any) {
                 terminal.reportError(error);
+                finishedPromise.reject(error);
             }
         })();
     } catch (error: any) {
         terminal.reportError(error);
-        throw error;
+        startedPromise.reject(error);
+    }
+    return {
+        awaitStarted: () => startedPromise.promise,
+        awaitFinished: () => finishedPromise.promise,
     }
 }
