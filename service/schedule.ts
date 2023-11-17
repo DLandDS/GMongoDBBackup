@@ -12,8 +12,8 @@ export async function init() {
         if (server.enabled) {
             const intervalId = setInterval(async () => {
                 actionService.startBackup(server.id);
-            // }, server.interval * 60 * 1000);
-            }, 10000);
+            }, server.interval * 60 * 1000);
+            // }, 10000);
             intervals.set(server.id, intervalId);
 
         }
@@ -68,8 +68,8 @@ export async function activate(id: number) {
     if(!intervals.has(server.id)) {
         const intervalId = setInterval(async () => {
             actionService.startBackup(server.id);
-        // }, server.interval * 60 * 1000);
-        }, 10000);
+        }, server.interval * 60 * 1000);
+        // }, 10000);
         intervals.set(server.id, intervalId);
     }
     log("INFO", `Schedule for server ${id} activated`);
