@@ -5,7 +5,7 @@ import Joi from "joi";
 import Database from "../../database";
 import httpStatus from "http-status";
 import ApiError from "../../utils/apiError";
-import { terminalService } from "../../service";
+import { scheduleService, terminalService } from "../../service";
 
 const router = Router();
 
@@ -27,6 +27,7 @@ router.route("/")
             ...req.body,
             lastBackup: new Date(0),
         } });
+        await scheduleService.activate(record.id);
         res.status(201).send(record);
     }))
 
