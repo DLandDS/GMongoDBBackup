@@ -4,5 +4,6 @@ node_modules
 data
 cache
 prisma/data
-prisma/migrations
 keys.json
+
+
