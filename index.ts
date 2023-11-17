@@ -30,18 +30,19 @@ app.use(notFoundMiddleware);
 
 app.use(errorMiddleware);
 
-
-Database.$connect().then(() => {
-    log('INFO', 'Database connected');
-    drive.files.list().then((res) => {
+try {
+    await Database.$connect();
+    log('INFO', 'Database connected')
+    try {
+        await drive.files.list();
         log('INFO', 'Google Drive connected');
-        scheduleService.init();
+        await scheduleService.init();
         app.listen(config.port, () => {
             log('INFO', `Server is listening on port ${config.port}`)
         });
-    }).catch((err: any) => {
+    } catch (err: any) {
         log('ERROR', 'Google Drive connection failed', err);
-    });
-}).catch((err) => {
+    }
+} catch (err: any) {
     log('ERROR', 'Database connection failed', err);
-});
+}
