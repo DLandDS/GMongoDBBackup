@@ -91,7 +91,7 @@ class Terminal {
                         log("INFO", `The ${this.id} backup is complete.`)
                         finishPromise.resolve();
                     } else {
-                        finishPromise.reject(new Error(`The ${this} backup is exited with code ${code}`));
+                        finishPromise.reject(new Error(`The ${this.id} backup is exited with code ${code}`));
                     }
                 });
             } else {
