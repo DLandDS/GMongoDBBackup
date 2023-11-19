@@ -1,6 +1,6 @@
 
 # Step 1: Build the application
-FROM oven/bun:1.0.12-slim as base
+FROM oven/bun:1.0.13-slim as base
 
 WORKDIR /usr/app
 
