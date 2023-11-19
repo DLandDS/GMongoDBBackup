@@ -1,4 +1,3 @@
-
 # Step 1: Build the application
 FROM oven/bun:1.0.13-slim as base
 
@@ -24,6 +23,7 @@ RUN bun run prisma generate
 FROM base as release
 COPY --from=install /usr/app/ .
 COPY --from=install /usr/bin/mongodump /usr/bin/
+RUN mkdir /usr/app/cache
 ENV NODE_ENV production
 
 EXPOSE 3000
