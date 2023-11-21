@@ -82,7 +82,11 @@ export async function startBackup(id: number) {
                     },
                 });
                 terminalLog.push("Cleaning...\n");
-                fs.unlinkSync(path);
+                try {
+                    fs.unlinkSync(path);
+                } catch (error: any) {
+                    terminalLog.push("Warning: " + error.message + "\n");
+                }
                 terminalLog.push("Done\n");
                 finishedPromise.resolve();
             } catch (error: any) {
