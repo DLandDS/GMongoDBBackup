@@ -93,9 +93,7 @@ router.route("/:id")
             where: {
                 id: req.params.id
             },
-            data: {
-                ...req.body,
-            },
+            data: req.body,
             
         });
         res.status(201).send(updatedRecord);

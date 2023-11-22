@@ -51,6 +51,9 @@ export async function startBackup(id: number) {
             dir,
         });
         terminalLog.push("Start backup...\n");
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir);
+        }
         const commandArray = formated.split(" ");
         const runPromisses = await terminal.run(commandArray[0], commandArray.slice(1));
         await runPromisses.awaitStarted();
@@ -87,6 +90,22 @@ export async function startBackup(id: number) {
                 } catch (error: any) {
                     terminalLog.push("Warning: " + error.message + "\n");
                 }
+                const record = await Database.server.findUnique({
+                    where: {
+                        id
+                    },
+                });
+                if (!record) {
+                    throw new ApiError(httpStatus.NOT_FOUND, "Server not found");
+                }
+                await Database.server.update({
+                    where: {
+                        id
+                    },
+                    data: {
+                        lastBackup: new Date(),
+                    }
+                });
                 terminalLog.push("Done\n");
                 finishedPromise.resolve();
             } catch (error: any) {

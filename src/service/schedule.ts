@@ -40,7 +40,6 @@ export async function disable(id: number) {
             id
         },
         data: {
-            ...server,
             enabled: false,
         }
     });
@@ -61,7 +60,6 @@ export async function activate(id: number) {
             id
         },
         data: {
-            ...server,
             enabled: true,
         }
     });

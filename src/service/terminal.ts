@@ -31,27 +31,6 @@ class TerminalLog {
     }
 }
 
-async function updateLastBackup(id: number) {
-    const record = await Database.server.findUnique({
-        where: {
-            id
-        },
-    });
-    if (!record) {
-        throw new ApiError(httpStatus.NOT_FOUND, "Server not found");
-    }
-    await Database.server.update({
-        where: {
-            id
-        },
-        data: {
-            ...record,
-            lastBackup: new Date(),
-            id: undefined,
-        }
-    });
-}
-
 
 class Terminal {
     private log: TerminalLog = new TerminalLog();
@@ -85,9 +64,6 @@ class Terminal {
                     this.log.push(`child process exited with code ${code}\n`);
                     this.endedTime = new Date();
                     if (code == 0) {
-                        updateLastBackup(this.id).catch((err) => {
-                            finishPromise.reject(err);
-                        });
                         log("INFO", `The ${this.id} backup is complete.`)
                         finishPromise.resolve();
                     } else {
